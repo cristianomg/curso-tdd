@@ -46,7 +46,7 @@ namespace NerdStore.Vendas.Domain.Tests
 
             Assert.Equal(300, pedido.ValorTotal);
             Assert.Equal(1, pedido.PedidoItems.Count);
-            Assert.Equal(3, pedido.PedidoItems.FirstOrDefault(x=>x.ProdutoId == newProdutoId)?.Quantidade);
+            Assert.Equal(3, pedido.PedidoItems.FirstOrDefault(x => x.ProdutoId == newProdutoId)?.Quantidade);
         }
         [Fact(DisplayName = "ADicoinar Item Pedido Existente")]
         [Trait("CAtegoria", "Vendas - Pedido")]
@@ -69,7 +69,7 @@ namespace NerdStore.Vendas.Domain.Tests
             Assert.Throws<DomainException>(() => pedido.AdicionarItem(pedidoItem2));
 
         }
-        [Fact(DisplayName = "Atualizar Item Pedido IneExistente")]
+        [Fact(DisplayName = "Atualizar Item Pedido Inexistente")]
         [Trait("Categoria", "Vendas - Pedido")]
         public void AtualizarItemPedido_ItemNaoExisteNaLista_DeveRetornarException()
         {
@@ -99,7 +99,7 @@ namespace NerdStore.Vendas.Domain.Tests
             var pedidoItemAtualizado = new PedidoItem(newProdutoId, "Produto test", 5, 100);
 
             var novaQuantidade = pedidoItemAtualizado.Quantidade;
-            
+
             pedido.AdicionarItem(pedidoItem);
 
             //Act 
@@ -128,13 +128,81 @@ namespace NerdStore.Vendas.Domain.Tests
             var pedidoItem1Atualizado = new PedidoItem(newProdutoId, "Produto test", 5, 100);
 
             var valorTotal = (pedidoItemExistente1.ValorUnitario * pedidoItemExistente1.Quantidade) +
-                             (pedidoItem1Atualizado.ValorUnitario * pedidoItem1Atualizado.Quantidade);  
+                             (pedidoItem1Atualizado.ValorUnitario * pedidoItem1Atualizado.Quantidade);
 
             //Act 
             pedido.AtualizarItem(pedidoItem1Atualizado);
 
             //Assert
             Assert.Equal(valorTotal, pedido.ValorTotal);
+
+        }
+        [Fact(DisplayName = "Remover Item Pedido Inexistente")]
+        [Trait("Categoria", "Vendas - Pedido")]
+        public void RemoverItemPedido_ItemNaoExisteNaLista_DeveRetornarException()
+        {
+            //Arrange
+            var pedido = Pedido.PedidoFactory.NovoPedidoRascunho(Guid.NewGuid());
+
+            var newProdutoId = Guid.NewGuid();
+
+            var pedidoItem = new PedidoItem(newProdutoId, "Produto test 2", 2, 100);
+
+
+            //Act & Assert
+
+            Assert.Throws<DomainException>(() => pedido.RemoverItem(pedidoItem));
+        }
+        [Fact(DisplayName = "Remover Item Pedido Deve Diminuir quantidade de pedidos")]
+        [Trait("Categoria", "Vendas - Pedido")]
+        public void RemoverItemPedido_ItemValido_DeveDiminuirQuantidadeDePedidoItem()
+        {
+            //Arrange
+            var pedido = Pedido.PedidoFactory.NovoPedidoRascunho(Guid.NewGuid());
+
+            var newProdutoId = Guid.NewGuid();
+
+            var pedidoItem = new PedidoItem(newProdutoId, "Produto test", 2, 100);
+            var pedidoItem2 = new PedidoItem(newProdutoId, "Produto test", 2, 100);
+
+            pedido.AdicionarItem(pedidoItem);
+            pedido.AdicionarItem(pedidoItem2);
+
+
+            var quantidadePedidoItems = pedido.PedidoItems.Count - 1;
+
+            //Act 
+            pedido.RemoverItem(pedidoItem);
+
+            //Assert
+            Assert.Equal(quantidadePedidoItems, pedido.PedidoItems.Count);
+
+        }
+        [Fact(DisplayName = "Remover Item Pedido Deve Calcular Valor Total")]
+        [Trait("Categoria", "Vendas - Pedido")]
+        public void RemoverItemPedido_ItemValido_DeveAtualizarValorTotal()
+        {
+            //Arrange
+            var pedido = Pedido.PedidoFactory.NovoPedidoRascunho(Guid.NewGuid());
+
+            var newProdutoId = Guid.NewGuid();
+
+            var pedidoItem = new PedidoItem(Guid.NewGuid(), "Produto test", 2, 100);
+            var pedidoItem2 = new PedidoItem(newProdutoId, "Produto test", 2, 100);
+
+            var pedidoItem2Remover = new PedidoItem(newProdutoId, "Produto test", 2, 100);
+
+            pedido.AdicionarItem(pedidoItem);
+            pedido.AdicionarItem(pedidoItem2);
+
+            var novoValorTotal = pedido.ValorTotal - pedidoItem.CalcularValor();
+
+
+            //Act 
+            pedido.RemoverItem(pedidoItem2Remover);
+
+            //Assert
+            Assert.Equal(novoValorTotal, pedido.ValorTotal);
 
         }
     }

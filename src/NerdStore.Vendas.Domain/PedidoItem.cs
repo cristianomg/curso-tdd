@@ -35,5 +35,16 @@ namespace NerdStore.Vendas.Domain
         {
             return ValorUnitario * Quantidade;
         }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is null) return false;
+            return this.ProdutoId == ((PedidoItem)obj).ProdutoId;
+        }
+
+        public override int GetHashCode()
+        {
+            return 10 ^ this.ProdutoId.GetHashCode();
+        }
     }
 }
