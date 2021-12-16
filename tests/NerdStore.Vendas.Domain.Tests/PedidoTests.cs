@@ -69,6 +69,73 @@ namespace NerdStore.Vendas.Domain.Tests
             Assert.Throws<DomainException>(() => pedido.AdicionarItem(pedidoItem2));
 
         }
+        [Fact(DisplayName = "Atualizar Item Pedido IneExistente")]
+        [Trait("Categoria", "Vendas - Pedido")]
+        public void AtualizarItemPedido_ItemNaoExisteNaLista_DeveRetornarException()
+        {
+            //Arrange
+            var pedido = Pedido.PedidoFactory.NovoPedidoRascunho(Guid.NewGuid());
 
+            var newProdutoId = Guid.NewGuid();
+
+            var pedidoItemAtualizado = new PedidoItem(newProdutoId, "Produto test", 1, 100);
+
+
+            //Act & Assert
+            Assert.Throws<DomainException>(() => pedido.AtualizarItem(pedidoItemAtualizado));
+
+        }
+        [Fact(DisplayName = "Atualizar Item Pedido Existente")]
+        [Trait("Categoria", "Vendas - Pedido")]
+        public void AtualizarItemPedido_ItemValido_DeveAtualizarQuantidade()
+        {
+            //Arrange
+            var pedido = Pedido.PedidoFactory.NovoPedidoRascunho(Guid.NewGuid());
+
+            var newProdutoId = Guid.NewGuid();
+
+            var pedidoItem = new PedidoItem(newProdutoId, "Produto test", 2, 100);
+
+            var pedidoItemAtualizado = new PedidoItem(newProdutoId, "Produto test", 5, 100);
+
+            var novaQuantidade = pedidoItemAtualizado.Quantidade;
+            
+            pedido.AdicionarItem(pedidoItem);
+
+            //Act 
+            pedido.AtualizarItem(pedidoItemAtualizado);
+
+            //Assert
+            Assert.Equal(novaQuantidade, pedido.PedidoItems.First(x => x.ProdutoId == newProdutoId).Quantidade);
+
+        }
+        [Fact(DisplayName = "Atualizar Item Pedido Validar Total")]
+        [Trait("Categoria", "Vendas - Pedido")]
+        public void AtualizarItemPedido_PedidoComProdutosDiferentes_DeveAtualizarValorTotal()
+        {
+            //Arrange
+            var pedido = Pedido.PedidoFactory.NovoPedidoRascunho(Guid.NewGuid());
+
+            var newProdutoId = Guid.NewGuid();
+
+            var pedidoItemExistente1 = new PedidoItem(Guid.NewGuid(), "Produto test 1", 2, 100);
+            var pedidoItemExistente2 = new PedidoItem(newProdutoId, "Produto test 2", 2, 100);
+
+            pedido.AdicionarItem(pedidoItemExistente1);
+            pedido.AdicionarItem(pedidoItemExistente2);
+
+
+            var pedidoItem1Atualizado = new PedidoItem(newProdutoId, "Produto test", 5, 100);
+
+            var valorTotal = (pedidoItemExistente1.ValorUnitario * pedidoItemExistente1.Quantidade) +
+                             (pedidoItem1Atualizado.ValorUnitario * pedidoItem1Atualizado.Quantidade);  
+
+            //Act 
+            pedido.AtualizarItem(pedidoItem1Atualizado);
+
+            //Assert
+            Assert.Equal(valorTotal, pedido.ValorTotal);
+
+        }
     }
 }

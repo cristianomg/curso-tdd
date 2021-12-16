@@ -20,13 +20,17 @@ namespace NerdStore.Vendas.Domain
 
         public void AdicionarItem(PedidoItem pedidoItem) 
         {
-            var pedidoExistente = _pedidoItems.FirstOrDefault(x => x.ProdutoId == pedidoItem.ProdutoId);
-
-            if (pedidoExistente is null)
-                _pedidoItems.Add(pedidoItem);
-            else
+ 
+            if (PedidoItemExistente(pedidoItem))
+            {
+                var pedidoExistente = _pedidoItems.First(x => x.ProdutoId == pedidoItem.ProdutoId);
                 pedidoExistente.AdicionarUnidades(pedidoItem.Quantidade);
 
+            }
+            else
+            {
+                _pedidoItems.Add(pedidoItem);
+            }
             CalcularValorTotal();
         }
 
@@ -52,6 +56,28 @@ namespace NerdStore.Vendas.Domain
                 pedido.TornarRascunho();
                 return pedido;
             }
+        }
+        private bool PedidoItemExistente(PedidoItem pedidoItem)
+        {
+            return _pedidoItems.Any(x => x.ProdutoId == pedidoItem.ProdutoId);
+        }
+
+        private void ValidarPedidoItemExistente(PedidoItem pedidoItem)
+        {
+            if (!PedidoItemExistente(pedidoItem))
+                throw new DomainException("O item não existe no pedido.");
+        }
+
+        public void AtualizarItem(PedidoItem pedidoItemAtualizado)
+        {
+            ValidarPedidoItemExistente(pedidoItemAtualizado);
+
+            var item = _pedidoItems.First(x => x.ProdutoId == pedidoItemAtualizado.ProdutoId);
+
+            _pedidoItems.Remove(item);
+            _pedidoItems.Add(pedidoItemAtualizado);
+
+            CalcularValorTotal();
         }
     }
 }
