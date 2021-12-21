@@ -6,11 +6,6 @@ namespace NerdStore.Vendas.Domain
 {
     public class Voucher
     {
-        protected Voucher()
-        {
-
-        }
-
         public Voucher(string codigo, decimal? valorDesconto, 
                        decimal? percentualDesconto, int quantidade,
                        TipoDescontoVoucher tipoDescontoVoucher, DateTime validade,

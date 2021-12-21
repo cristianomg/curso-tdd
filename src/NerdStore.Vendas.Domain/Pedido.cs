@@ -1,17 +1,15 @@
 ﻿using FluentValidation.Results;
 using NerdStore.Vendas.Core;
+using NerdStore.Vendas.Core.DomainObjects;
 using NerdStore.Vendas.Domain.Strategy.DescontoVoucher;
 
 namespace NerdStore.Vendas.Domain
 {
-    public class Pedido
+    public class Pedido : Entity, IAggregateRoot
     {
         public static readonly int MAX_UNIDADES_ITEM_PEDIDO = 15;
         public static readonly int MIN_UNIDADES_ITEM_PEDIDO = 1;
-        protected Pedido()
-        {
 
-        }
         public Guid ClienteId { get; private set; }
         public decimal ValorTotal { get; private set; }
 
@@ -77,7 +75,7 @@ namespace NerdStore.Vendas.Domain
                 return pedido;
             }
         }
-        private bool PedidoItemExistente(PedidoItem pedidoItem)
+        public bool PedidoItemExistente(PedidoItem pedidoItem)
         {
             return _pedidoItems.Any(x => x.ProdutoId == pedidoItem.ProdutoId);
         }

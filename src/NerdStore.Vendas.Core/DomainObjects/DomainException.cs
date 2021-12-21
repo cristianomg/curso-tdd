@@ -1,4 +1,4 @@
-﻿namespace NerdStore.Vendas.Core
+﻿namespace NerdStore.Vendas.Core.DomainObjects
 {
     public class DomainException : Exception
     {

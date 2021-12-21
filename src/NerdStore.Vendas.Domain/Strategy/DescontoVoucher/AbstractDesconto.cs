@@ -1,4 +1,5 @@
 ﻿using NerdStore.Vendas.Core;
+using NerdStore.Vendas.Core.DomainObjects;
 
 namespace NerdStore.Vendas.Domain.Strategy.DescontoVoucher
 {

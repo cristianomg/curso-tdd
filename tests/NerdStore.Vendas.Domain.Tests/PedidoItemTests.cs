@@ -1,4 +1,5 @@
 ﻿using NerdStore.Vendas.Core;
+using NerdStore.Vendas.Core.DomainObjects;
 using System;
 using Xunit;
 
